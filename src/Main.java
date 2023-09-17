@@ -10,67 +10,45 @@ public class Main {
         Scanner in = new Scanner(System.in);
 
         System.out.println("Введите выражение:");
-        String input = in.next();
+        String input = in.nextLine();
+
         String[] inputArray = splitInput(input);
         String result = calc(inputArray);
+
         System.out.println(result);
     }
 
-    public static String[] splitInput(String i) {
-        String[] inputArray = new String[2];
-        String[] outputArray = new String[3];
-        if (i.contains("/")) {
-            inputArray = i.split("/");
-            outputArray[2] = inputArray[1];
-            outputArray[1] = "/";
-            outputArray[0] = inputArray[0];
-        } else if (i.contains("*")) {
-            inputArray = i.split("\\*");
-            outputArray[2] = inputArray[1];
-            outputArray[1] = "*";
-            outputArray[0] = inputArray[0];
-        } else if (i.contains("+")) {
-            inputArray = i.split("\\+");
-            outputArray[2] = inputArray[1];
-            outputArray[1] = "+";
-            outputArray[0] = inputArray[0];
-        } else if (i.contains("-")) {
-            inputArray = i.split("-");
-            outputArray[2] = inputArray[1];
-            outputArray[1] = "-";
-            outputArray[0] = inputArray[0];
+    public static String[] splitInput(String i) throws IOException {
+        String[] inputArray;
+
+        if (i.contains("/") || i.contains("*") || i.contains("+") || i.contains("-")) {
+            inputArray = i.split(" ");
         } else {
-            try {
-                throw new IOException();
-            } catch (IOException e) {
-                System.out.println("Неверный формат записи");
-            }
+            throw new IOException("Неверный формат записи.");
         }
-        return outputArray;
+        return inputArray;
     }
 
-    public static String calc(String[] array) {
+    public static String calc(String[] array) throws IOException {
+
         boolean isRoman = false;
         String[] romanNumeral = {"I", "IV", "V", "IX", "X",
-                                 "Xl", "L", "XC", "C", "CD",
-                                 "D", "CM", "M"};
+                "Xl", "L", "XC", "C", "CD",
+                "D", "CM", "M"};
         int result = 0;
 
-        for (String s :romanNumeral) {
-            if (array[0].contains(s)) {
+        for (String number : romanNumeral) {
+            if (array[0].toUpperCase().contains(number)) {
                 array[0] = String.valueOf(romanToArabic(array[0]));
                 array[2] = String.valueOf(romanToArabic(array[2]));
                 isRoman = true;
+            } else if (array[2].toUpperCase().contains(number)) {
+                throw new IOException("Неверный формат записи.");
             }
         }
 
         if (Integer.parseInt(array[0]) > 10 || Integer.parseInt(array[2]) > 10) {
-            try {
-                throw new IOException();
-            } catch (IOException e) {
-                System.out.println("Ни один из операндов не должен быть больше 10-ти.");
-            }
-            return "";
+            throw new IOException("Ни один из операндов не должен быть больше 10-ти.");
         }
 
         switch (array[1]) {
@@ -143,7 +121,7 @@ public class Main {
 
     public static String arabicToRoman(int number) {
         if ((number <= 0) || (number > 4000)) {
-            throw new IllegalArgumentException(number + " is not in range (0,4000]");
+            throw new IllegalArgumentException("Римские числа не могут быть отрицательными или быть равными нулю");
         }
 
         List<RomanNumeral> romanNumerals = RomanNumeral.getReverseSortedValues();
